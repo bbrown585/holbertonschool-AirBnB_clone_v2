@@ -10,7 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from shlex import shlex, split
+import shlex
 
 
 class HBNBCommand(cmd.Cmd):
