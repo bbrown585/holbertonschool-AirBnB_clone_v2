@@ -3,14 +3,13 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from shlex import shlex, split
 
 
 class HBNBCommand(cmd.Cmd):
@@ -116,24 +115,31 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
+        arg_list = args.split()
         if not args:
-            raise SyntaxError()
-        command = shlex.split(args)
-        # print (command)
-        # create the object => eval(BaseModel())
-        obj = eval("{}()").format(command[0])
-        # populate the object's parameters
-        for param in command[1:]:
-            p = param.split("=")
-            p[1] = p[1].strip('"')
-            p[1] = p[1].replace('_', ' ')
-            setattr(obj, p[0], p[1])
-        obj.save()
-        print("{}".format(obj.id))
-    except SyntaxError:
-        print("** class doesn't exist **")
-    except NameError:
-        print("** class doesn't exist **")
+            print("** class name missing **")
+            return
+        elif arg_list[0] not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+        new_instance = HBNBCommand.classes[arg[0]]()
+        for j in range(1, len(arg)):
+            key_value = arg[j].partition("=")
+            key = key_value[0]
+            value = key_value[2]
+
+            if '\"' in value:
+                value = value[1:-1]
+                value = value.replace("_", " ")
+            elif '.' in value:
+                value = float(value)
+            else:
+                value = int(value)
+
+            setattr(new_instance, key, value)
+
+        storage.save()
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
