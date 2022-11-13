@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 """This module defines a class User"""
 from sqlalchemy.orm import relationship
+<<<<<<< HEAD
+=======
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String
+>>>>>>> 72b1a05de8544ff4a1623b221caa35a4e2f94be4
 
 
 class User(BaseModel, Base):
