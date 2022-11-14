@@ -9,21 +9,22 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
+        """returns a dictionary
+        Return:
+            returns a dictionary of __object
         """
-        If cls=None, returns a dictionary of models
-        currently in storage, else returns a dictionary
-        of models with class=cls
-        """
-        # print(FileStorage.__objects)
         if cls is None:
-            return FileStorage.__objects
-
-        cls_objects = {}
-        for value in FileStorage.__objects.values():
-            if type(value) == cls:
-                cls_objects.update({value.to_dict()['__class__'] +
-                                    '.' + value.id: value})
-        return cls_objects
+            return self.__objects
+        class_dict = {}
+        # print("All FileStorage")
+        for key, value in self.__objects.items():
+            _class = value.__class__
+            _value = value.__class__.__name__
+            # _class = cls.__name__
+            # _obj = type(value).__name__
+            if cls == _class or cls == _value:
+                class_dict[key] = value
+        return class_dict
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -63,16 +64,14 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """deletes an object from __objects"""
+        """This method will delete obj from __objects if it is inside,
+        if obj == NONE, method does nothing"""
         if obj is None:
             return
         for key, value in dict(FileStorage.__objects).items():
             if value == obj:
                 del FileStorage.__objects[key]
-
     def close(self):
-        """
-        Method to deserialize the JSON file to objects
-        Added for task 7 of AirBnB clone - Web framework
+        """call reload method for deserializing the JSON file to objects
         """
         self.reload()

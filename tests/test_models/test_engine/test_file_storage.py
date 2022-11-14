@@ -5,9 +5,6 @@ from models.base_model import BaseModel
 from models import storage
 import os
 
-# @unittest.skipIf(HBNB_TYPE_STORAGE == 'db')
-# TODO: define HBNB_TYPE_STORAGE somewhere
-
 
 class test_fileStorage(unittest.TestCase):
     """ Class to test the file storage method """
@@ -24,7 +21,7 @@ class test_fileStorage(unittest.TestCase):
         """ Remove storage file at end of tests """
         try:
             os.remove('file.json')
-        except Exception:
+        except:
             pass
 
     def test_obj_list_empty(self):
@@ -43,7 +40,6 @@ class test_fileStorage(unittest.TestCase):
         new = BaseModel()
         temp = storage.all()
         self.assertIsInstance(temp, dict)
-        # TODO: Add testing for cls=... method
 
     def test_base_model_instantiation(self):
         """ File is not created on BaseModel save """
@@ -109,10 +105,5 @@ class test_fileStorage(unittest.TestCase):
     def test_storage_var_created(self):
         """ FileStorage object storage created """
         from models.engine.file_storage import FileStorage
-        # Below line was in code base, but not sure why, so commented out
-        # print(type(storage))
+        print(type(storage))
         self.assertEqual(type(storage), FileStorage)
-
-    def test_delete(self):
-        """ Confirm object is deleted """
-        # TODO: add testing for delete method
