@@ -3,7 +3,6 @@
 import cmd
 import sys
 from models.base_model import BaseModel
-from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
@@ -33,11 +32,10 @@ class HBNBCommand(cmd.Cmd):
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
-            print('(hbnb)')
+            print('(hbnb) ', end="")
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
-
         Usage: <class name>.<command>([<id> [<*args> or <**kwargs>]])
         (Brackets denote optional fields in usage example.)
         """
@@ -73,7 +71,8 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is '}'\
+                    # added space around second curly brace in line below
+                    if pline[0] == '{' and pline[-1] == '}' \
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,29 +114,31 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        arg_list = args.split()
+        from models import storage
+        list_args = args.split()
         if not args:
             print("** class name missing **")
             return
-        elif arg_list[0] not in HBNBCommand.classes:
+        elif list_args[0] not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[arg[0]]()
-        for j in range(1, len(arg)):
-            key_value = arg[j].partition("=")
-            key = key_value[0]
-            value = key_value[2]
-
-            if '\"' in value:
-                value = value[1:-1]
-                value = value.replace("_", " ")
-            elif '.' in value:
-                value = float(value)
+        new_instance = HBNBCommand.classes[list_args[0]]()
+        for arg in range(1, len(list_args)):
+            key_value_pair = list_args[arg].partition("=")
+            key_name = key_value_pair[0]
+            key_value = key_value_pair[2]
+            if '\"' in key_value:
+                key_value = key_value[1:-1]
+                key_value = key_value.replace("_", " ")
+            elif "." in key_value:
+                key_value = float(key_value)
             else:
-                value = int(value)
+                key_value = int(key_value)
 
-            setattr(new_instance, key, value)
+            if hasattr(new_instance, key_name):
+                setattr(new_instance, key_name, key_value)
 
+        storage.new(new_instance)
         storage.save()
         print(new_instance.id)
 
@@ -148,6 +149,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, args):
         """ Method to show an individual object """
+        from models import storage
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -181,6 +183,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, args):
         """ Destroys a specified object """
+        from models import storage
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -214,18 +217,20 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
+        from models import storage
         print_list = []
+        objects = storage.all()
 
         if args:
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in objects.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in objects.items():
                 print_list.append(str(v))
 
         print(print_list)
@@ -237,8 +242,9 @@ class HBNBCommand(cmd.Cmd):
 
     def do_count(self, args):
         """Count current number of class instances"""
+        from models import storage
         count = 0
-        for k, v in storage._FileStorage__objects.items():
+        for k, v in storage.all().items():
             if args == k.split('.')[0]:
                 count += 1
         print(count)
@@ -249,6 +255,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, args):
         """ Updates a certain object with new info """
+        from models import storage
         c_name = c_id = att_name = att_val = kwargs = ''
 
         # isolate cls from id/args, ex: (<cls>, delim, <id/args>)
@@ -287,7 +294,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -295,10 +302,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
@@ -334,6 +341,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+# added second blank line here to satisfy pycodestyle
 
 
 if __name__ == "__main__":
