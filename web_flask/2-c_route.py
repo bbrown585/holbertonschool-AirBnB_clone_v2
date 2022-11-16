@@ -22,5 +22,6 @@ def hello_c(text):
     mod_text = escape(text)
     return 'C %s' % mod_text.replace("_", " ")
 
+
 if __name__ == "__main__":
     app.run()
