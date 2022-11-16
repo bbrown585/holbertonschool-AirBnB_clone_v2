@@ -24,4 +24,5 @@ def hello_c(text):
 
 
 if __name__ == "__main__":
+    """document for main"""
     app.run()
