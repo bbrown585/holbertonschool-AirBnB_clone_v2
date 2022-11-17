@@ -33,5 +33,6 @@ def hello_python(text="is cool"):
     mod_text = escape(text)
     return 'Python %s' % mod_text.replace("_", " ")
 
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
