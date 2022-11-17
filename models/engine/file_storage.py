@@ -14,17 +14,14 @@ class FileStorage:
             returns a dictionary of __object
         """
         if cls is None:
-            return self.__objects
-        class_dict = {}
-        # print("All FileStorage")
-        for key, value in self.__objects.items():
-            _class = value.__class__
-            _value = value.__class__.__name__
-            # _class = cls.__name__
-            # _obj = type(value).__name__
-            if cls == _class or cls == _value:
-                class_dict[key] = value
-        return class_dict
+            return FileStorage.__objects
+
+        cls_objects = {}
+        for value in FileStorage.__objects.values():
+            if type(value) == cls:
+                cls_objects.update({value.to_dict()['__class__'] +
+                                    '.' + value.id: value})
+        return cls_objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -75,4 +72,4 @@ class FileStorage:
     def close(self):
         """call reload method for deserializing the JSON file to objects
         """
-        self.reload()
+        return self.reload()
