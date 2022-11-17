@@ -23,5 +23,6 @@ def teardown_db(exception):
     '''close connections'''
     storage.close()
 
+
 if __name__ == "__main__":
     app.run()
